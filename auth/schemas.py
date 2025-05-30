@@ -1,0 +1,28 @@
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+from datetime import datetime
+
+class UserBase(BaseModel):
+    email: EmailStr
+    username: str
+    role: str
+    status: Optional[str] = "Active"
+
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    role: Optional[str] = None
+    status: Optional[str] = None
+
+class UserOut(UserBase):
+    id: int
+    created_date: datetime
+    update_date: Optional[datetime] = None
+
+class UserResponse(UserBase):
+    id: int
+    
+    class Config:
+        orm_mode = True
