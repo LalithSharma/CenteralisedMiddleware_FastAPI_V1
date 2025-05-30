@@ -14,15 +14,17 @@ load_dotenv()
 
 # Initialize Redis client
 redis_client = Redis(host="localhost", port=6379, db=0)
+#redis_url = os.getenv("REDIS_URL")
+#redis_client = Redis.from_url(redis_url, decode_responses=True)
 
 # Define rate-limiting configuration
 config = RateLimitConfig(max_calls=5, period=60)
 
 rate_limiter = RateLimiter(redis_client, config)
 
-VALID_TOKEN = os.getenv("VALID_TOKEN")
-TOKEN_EXPIRY = os.getenv("TOKEN_EXPIRY")
-SOURCEURL = os.getenv("SOURCE_URL")
+VALID_TOKEN = os.getenv("MTM_PRD_VALID_TOKEN")
+TOKEN_EXPIRY = os.getenv("MTM_PRD_TOKEN_EXPIRY")
+SOURCEURL = os.getenv("MTM_PRD_SOURCE_URL")
 API_PREFIX = os.getenv("API_URL")
 URLprefix = SOURCEURL.split('.')[1]
 
