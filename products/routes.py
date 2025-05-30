@@ -13,9 +13,9 @@ router = APIRouter()
 load_dotenv()
 
 # Initialize Redis client
-redis_client = Redis(host="localhost", port=6379, db=0)
-#redis_url = os.getenv("REDIS_URL")
-#redis_client = Redis.from_url(redis_url, decode_responses=True)
+#redis_client = Redis(host="localhost", port=6379, db=0)
+redis_url = os.getenv("REDIS_URL")
+redis_client = Redis.from_url(redis_url, decode_responses=True)
 
 # Define rate-limiting configuration
 config = RateLimitConfig(max_calls=5, period=60)
