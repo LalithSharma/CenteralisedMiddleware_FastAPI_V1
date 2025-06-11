@@ -2,9 +2,9 @@ import os
 from jose import jwt
 from datetime import datetime, timedelta
 
-SECRET_KEY = os.getenv("MIDDLEWARE_ADMIN_SECRET_KEY")
-ALGORITHM = os.getenv("MIDDLEWARE_ADMIN_ALGORITHM")
-TOKEN_EXPIRATION_MINUTES = os.getenv("MIDDLEWARE_ADMIN_TOKEN_EXPIRE")
+SECRET_KEY = "your_secret_key"
+ALGORITHM = "HS256"
+TOKEN_EXPIRATION_MINUTES = 60
 
 def generate_admin_token():
     payload = {

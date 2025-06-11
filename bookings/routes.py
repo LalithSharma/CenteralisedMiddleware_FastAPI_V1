@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import httpx
 from redis import Redis
 from sqlalchemy.orm import Session
@@ -12,7 +13,12 @@ from products.utils import RateLimitConfig, RateLimiter
 router = APIRouter()
 load_dotenv()
 
-redis_client = Redis(host="localhost", port=6379, db=0)
+redis_host = os.getenv("REDIS_HOST", "localhost")
+redis_port = int(os.getenv("REDIS_PORT", 6379))
+redis_db = int(os.getenv("REDIS_DB", 0))
+
+# Initialize Redis client
+redis_client = Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
 
 
 config = RateLimitConfig(max_calls=5, period=60)
