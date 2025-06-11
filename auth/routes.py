@@ -9,7 +9,6 @@ from .models import Token
 from .schemas import UserCreate, UserResponse
 from users.models import Channel, User, UserAPI, UserChannel
 from .utils import get_password_hash
-from dotenv import load_dotenv
 
 router = APIRouter()
 security = HTTPBearer()
