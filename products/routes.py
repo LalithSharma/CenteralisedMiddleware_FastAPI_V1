@@ -1,5 +1,6 @@
 import logging
 import os
+import redis
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Path
@@ -11,15 +12,9 @@ from .utils import RateLimitConfig, RateLimiter
 
 router = APIRouter()
 load_dotenv()
+redis_url = os.getenv("REDIS_URL")
+redis_client = Redis.from_url(redis_url, decode_responses=True)
 
-redis_host = os.getenv("REDIS_HOST", "localhost")
-redis_port = int(os.getenv("REDIS_PORT", 6379))
-redis_db = int(os.getenv("REDIS_DB", 0))
-
-# Initialize Redis client
-redis_client = Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
-
-# Define rate-limiting configuration
 config = RateLimitConfig(max_calls=5, period=60)
 rate_limiter = RateLimiter(redis_client, config)
 

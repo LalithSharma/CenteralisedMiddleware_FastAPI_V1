@@ -12,12 +12,10 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 load_dotenv()
-redis_host = os.getenv("REDIS_HOST", "localhost")
-redis_port = int(os.getenv("REDIS_PORT", 6379))
-redis_db = int(os.getenv("REDIS_DB", 0))
 
+redis_url = os.getenv("REDIS_URL")
 # Initialize Redis client
-redis_client = Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
+redis_client = Redis.from_url(redis_url, decode_responses=True)
 
 config = RateLimitConfig(max_calls=5, period=60)
 rate_limiter = RateLimiter(redis_client, config)
