@@ -1,4 +1,5 @@
 import logging
+import os
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Path
