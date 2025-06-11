@@ -18,7 +18,7 @@ class RateLimiter:
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
             async def wrapper(*args, token_data: dict = Depends(), **kwargs) -> Any:
-                username = token_data.username
+                username = token_data.email
                 if not username:
                     raise HTTPException(status_code=401, detail="Unauthorized")
 
@@ -44,6 +44,5 @@ class RateLimiter:
                     await pipe.execute()
 
                 return await func(*args, token_data=token_data, **kwargs)
-
             return wrapper
         return decorator

@@ -4,12 +4,11 @@ from datetime import datetime
 
 class UserBase(BaseModel):
     email: EmailStr
-    username: str
-    role: str
-    status: Optional[str] = "Active"
+    status: Optional[str] = "active"
 
 class UserCreate(UserBase):
     password: str
+    channels: str
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -21,8 +20,10 @@ class UserOut(UserBase):
     created_date: datetime
     update_date: Optional[datetime] = None
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     id: int
+    email: EmailStr
+    status: str
     
     class Config:
         orm_mode = True

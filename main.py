@@ -5,6 +5,8 @@ from auth.routes import router as auth_router
 
 from users.routes import router as users_router
 from products.routes import router as products_router
+from clients.routes import router as clients_router
+from bookings.routes import router as bookings_router
 
 app = FastAPI()
 
@@ -16,12 +18,19 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     if redis_client:
-        await redis_client.close()
+        redis_client.close()
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/user", tags=["user"])
-app.include_router(products_router, prefix="/products", tags=["products"])
+app.include_router(clients_router, prefix="/{channel}", tags=["clients"])
+app.include_router(clients_router, prefix="/{channel}", tags=["clients"])
+app.include_router(products_router, prefix="/{channel}", tags=["products"])
+app.include_router(products_router, prefix="/{channel}", tags=["products"])
+app.include_router(products_router, prefix="/{channel}", tags=["products"])
 
+app.include_router(bookings_router, prefix="/{channel}", tags=["Bookings"])
+app.include_router(bookings_router, prefix="/{channel}", tags=["bookings"])
+app.include_router(bookings_router, prefix="/{channel}", tags=["bookings"])
 
 admin_app =FastAPI()
 admin_app.add_middleware(RoleMiddleware, allowed_roles=["admin"])
@@ -41,7 +50,7 @@ manager_app.include_router(products_router, prefix="/products", tags=["product l
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to FastAPI authentication and authorization example"}
+    return {"message": "Welcome to Centeralized getway to Web API access..!"}
 
 
 # Using Dependencies for Role-Based Access
