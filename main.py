@@ -8,7 +8,9 @@ from auth.dependencies import authenticate_user, get_db
 from auth.middleware import RoleMiddleware
 from auth.routes import router as auth_router
 from sqlalchemy.orm import Session
-from auth.utils import ALGORITHM, SECRET_KEY, SESSION_DURATION, Login_API_KEY, create_access_token
+from auth.static_seeder import seed_channels, seed_roles, seed_users
+from auth.utils import SESSION_DURATION, Login_API_KEY
+from auth.database import engine
 from users.routes import router as users_router
 from products.routes import router as products_router
 from clients.routes import router as clients_router
@@ -21,6 +23,13 @@ app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 templates = Jinja2Templates(directory="users/templates")
 #app.mount("/static", StaticFiles(directory="users/static"), name="static")
 
+@app.on_event("startup")
+async def startup_event():
+    with Session(engine) as session:
+        seed_roles(session)
+        seed_channels(session)
+        seed_users(session)
+        
 @app.on_event("startup")
 async def startup_event():
     global redis_client
