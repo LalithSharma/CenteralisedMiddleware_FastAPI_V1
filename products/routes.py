@@ -1,8 +1,6 @@
 import logging
 import os
-import redis
 from sqlalchemy.orm import Session
-from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Path
 from auth.dependencies import fetch_channel_data, get_current_user, get_db
 import httpx
@@ -11,7 +9,6 @@ from redis.asyncio import Redis
 from .utils import RateLimitConfig, RateLimiter
 
 router = APIRouter()
-load_dotenv()
 redis_url = os.getenv("REDIS_URL")
 redis_client = Redis.from_url(redis_url, decode_responses=True)
 

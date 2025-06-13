@@ -1,5 +1,4 @@
 import logging
-from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Path
 from auth.dependencies import fetch_channel_data, get_current_user, get_db
 import httpx, json, os
@@ -11,7 +10,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-load_dotenv()
 
 redis_url = os.getenv("REDIS_URL")
 # Initialize Redis client

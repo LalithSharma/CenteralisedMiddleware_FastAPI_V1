@@ -49,13 +49,11 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/signup", response_model= UserResponse)
-def signup(user: UserCreate, db: Session = Depends(get_db), 
-           #credentials: HTTPAuthorizationCredentials = Security(security)
-           ):
+def signup(user: UserCreate, db: Session = Depends(get_db), credentials: HTTPAuthorizationCredentials = Security(security)):
     
-    # token = credentials.credentials
-    # if not verify_admin_token(token):
-    #     raise HTTPException(status_code=403, detail="Permission denied")
+    token = credentials.credentials
+    if not verify_admin_token(token):
+        raise HTTPException(status_code=403, detail="Permission denied")
     
     db_user = get_user(db, email = user.email)
     if db_user:
