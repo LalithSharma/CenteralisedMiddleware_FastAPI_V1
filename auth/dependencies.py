@@ -63,6 +63,8 @@ def get_current_user(
     user.channels = channels
     
     user_role = (db.query(Role.name).join(UserRole, Role.id == UserRole.role_id).filter(UserRole.user_id == user.id)).all()
+    
+    roles = [role.name for role in user_role ]
     return user
 
 def fetch_channel_data(channel_name: str, db: Session = Depends(get_db)):
