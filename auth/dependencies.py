@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from .utils import ALGORITHM, SECRET_KEY, verify_password, get_password_hash, create_access_token
 from .models import TokenData
-from users.models import Channel, User, UserChannel
+from users.models import Channel, Role, User, UserChannel, UserRole
 from .database import SessionLocal, engine, Base
 from users import models
 from sqlalchemy import select
@@ -61,7 +61,8 @@ def get_current_user(
     )
     channels = [channel.name for channel in user_channels]
     user.channels = channels
-     
+    
+    user_role = (db.query(Role.name).join(UserRole, Role.id == UserRole.role_id).filter(UserRole.user_id == user.id)).all()
     return user
 
 def fetch_channel_data(channel_name: str, db: Session = Depends(get_db)):
