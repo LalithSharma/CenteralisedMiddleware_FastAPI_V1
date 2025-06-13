@@ -12,6 +12,7 @@ class User(UserBase):
     email: EmailStr
     status: str
     channels: List[str]
+    role: str
 
     class Config:
         orm_mode = True

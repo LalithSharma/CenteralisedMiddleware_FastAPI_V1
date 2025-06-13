@@ -7,23 +7,23 @@ from sqlalchemy.orm import Session
 from .dependencies import get_db, authenticate_user, create_access_token, get_user
 from .models import Token
 from .schemas import UserCreate, UserResponse
-from users.models import Channel, User, UserAPI, UserChannel
+from users.models import Channel, Role, User, UserAPI, UserChannel, UserRole
 from .utils import get_password_hash
 
 router = APIRouter()
 security = HTTPBearer()
 
-SECRET_KEY = os.getenv("MIDDLEWARE_ADMIN_SECRET_KEY")
-ALGORITHM = os.getenv("MIDDLEWARE_ADMIN_ALGORITHM")
+#SECRET_KEY = os.getenv("MIDDLEWARE_ADMIN_SECRET_KEY")
+#ALGORITHM = os.getenv("MIDDLEWARE_ADMIN_ALGORITHM")
 
-def verify_admin_token(token: str) -> bool:
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("role") == "admin":
-            return True
-    except JWTError:
-        pass
-    return False
+# def verify_admin_token(token: str) -> bool:
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         if payload.get("role") == "admin":
+#             return True
+#     except JWTError:
+#         pass
+#     return False
 
 @router.post("/login", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -79,6 +79,17 @@ def signup(user: UserCreate, db: Session = Depends(get_db),
         channel_id=db_channel.id,
     )
     db.add(user_channel_entry)
+    db.commit()
+    
+    db_role = db.query(Role).filter(Role.name == user.role).first()
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Role does not exist")
+    
+    user_role_entry = UserRole(
+        user_id = db_user.id,
+        role_id = db_role.id
+    )
+    db.add(user_role_entry)
     db.commit()
     
     return db_user

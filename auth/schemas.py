@@ -9,6 +9,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
     channels: str
+    role: str
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
