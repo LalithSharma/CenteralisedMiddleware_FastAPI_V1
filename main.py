@@ -18,7 +18,7 @@ from fastapi.openapi.utils import get_openapi
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 templates = Jinja2Templates(directory="users/templates")
-app.mount("/static", StaticFiles(directory="users/static"), name="static")
+# app.mount("/static", StaticFiles(directory="users/static"), name="static")
 
 @app.on_event("startup")
 async def startup_event():
