@@ -8,8 +8,7 @@ def seed_roles(session: Session):
         {"name": "admin", "status": StatusEnum.active},
         {"name": "partner", "status": StatusEnum.active},
         {"name": "guest", "status": StatusEnum.active},
-    ]
-    
+    ]    
     for role in roles:
         # Check if the role already exists by name
         existing_role = session.query(Role).filter_by(name=role["name"]).first()
@@ -69,7 +68,7 @@ def seed_users(session: Session):
             "hashed_password": get_password_hash("user123"),
             "status": StatusEnum.active,
             "roles": ["partner"],
-            "channels": ["mpp"],
+            "channels": ["mtm"],
         },
     ]
 
@@ -86,13 +85,11 @@ def seed_users(session: Session):
             session.add(new_user)
             session.flush()  # Ensure user ID is available
 
-            # Assign roles
             for role_name in user_data["roles"]:
                 role = session.query(Role).filter_by(name=role_name).first()
                 if role:
                     session.add(UserRole(user_id=new_user.id, role_id=role.id))
 
-            # Assign channels
             for channel_name in user_data["channels"]:
                 channel = session.query(Channel).filter_by(name=channel_name).first()
                 if channel:
