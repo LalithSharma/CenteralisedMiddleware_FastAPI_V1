@@ -33,7 +33,7 @@ def ApiGateway_Middleware(app:FastAPI):
             )  
 
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],allow_credentials= True,)
-    app.add_middleware(TrustedHostMiddleware,  allowed_hosts=["127.0.0.1", "localhost", "*.yourdomain.com"],)
+    app.add_middleware(TrustedHostMiddleware,  allowed_hosts=["centeralisedmiddleware.onrender.com","127.0.0.1", "localhost", "*.yourdomain.com"],)
     
 def admin_only(request: Request):    
     # Get the role from the cookies
