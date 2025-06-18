@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 logger = logging.getLogger('uvicorn.access')
-logger.disabled = True
+logger.disabled = false
 
 def ApiGateway_Middleware(app:FastAPI):
         
