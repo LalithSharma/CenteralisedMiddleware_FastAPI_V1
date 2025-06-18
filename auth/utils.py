@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+from fastapi import HTTPException
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
@@ -9,11 +10,13 @@ SECRET_KEY = os.getenv("MIDDLEWARE_SECRET_KEY")
 ALGORITHM = os.getenv("MIDDLEWARE_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("MIDDLEWARE_TOKEN_EXPIRE",15))
 
-Login_SECRET_KEY = os.getenv("LOGINMIDDLEWARE_SECRET_KEY")
-Login_ALGORITHM = os.getenv("LOGINMIDDLEWARE_ALGORITHM")
-Login_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("LOGINMIDDLEWARE_ADMIN_TOKEN_EXPIRE",15))
-Login_API_KEY = os.getenv("STATIC_API_KEY")
-SESSION_DURATION = os.getenv("API_KEY_DURATION")
+SUPERLOGIN_SECRET_KEY = os.getenv("SUPERUSER_SECRET_KEY")
+SUPERLOGIN_ALGORITHM = os.getenv("SUPERUSER_ALGORITHM")
+SUPERLOGIN_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("SUPERUSER_TOKEN_EXPIRE",15))
+
+REDISURL = os.getenv("REDIS_URL")
+
+SUPERLOGIN_API_KEY = os.getenv("SUPER_API_KEY")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
@@ -31,9 +34,11 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt, expire
 
-# def access_tokenLoggin(data: dict, expires_delta: timedelta = None):
-#     to_encode = data.copy()
-#     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-#     to_encode.update({"exp": int(expire.timestamp())})
-#     encoded_jwt = jwt.encode(to_encode, Login_SECRET_KEY, algorithm=Login_ALGORITHM)
-#     return encoded_jwt
+def UserLogged_access_token(email, role):
+    if SUPERLOGIN_API_KEY != "your_secure_api_key_here":
+        raise HTTPException(status_code=500, detail="Internal server error. $key@")
+    access_token_expires = timedelta(minutes=SUPERLOGIN_ACCESS_TOKEN_EXPIRE_MINUTES)
+    encoded_jwt = jwt.encode({"sub": email, "role": role, "exp": datetime.utcnow() + access_token_expires},
+        SUPERLOGIN_SECRET_KEY,
+        algorithm=SUPERLOGIN_ALGORITHM,)
+    return encoded_jwt
