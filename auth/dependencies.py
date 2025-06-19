@@ -97,8 +97,8 @@ def validate_token(token: str):
         role = payload.get("role")
         if not email or not role:
             raise HTTPException(status_code=403, detail="Invalid token")
-        if SUPERLOGIN_API_KEY != "your_secure_api_key_here":  # From .env
-            raise HTTPException(status_code=500, detail="Internal server error")
+        if SUPERLOGIN_API_KEY != "U2FsdGVkX1+2//gQlVR8f9KABqEnXEdt81azc4Mx2zQpQJUfdBFpiolrD52Z3XSj":
+            raise HTTPException(status_code=500, detail="Internal server error.  $Validatekey@")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.JWTError:
