@@ -35,7 +35,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt, expire
 
 def UserLogged_access_token(email, role):
-    if SUPERLOGIN_API_KEY != "your_secure_api_key_here":
+    if SUPERLOGIN_API_KEY != "U2FsdGVkX1+2//gQlVR8f9KABqEnXEdt81azc4Mx2zQpQJUfdBFpiolrD52Z3XSj":
         raise HTTPException(status_code=500, detail="Internal server error. $key@")
     access_token_expires = timedelta(minutes=SUPERLOGIN_ACCESS_TOKEN_EXPIRE_MINUTES)
     encoded_jwt = jwt.encode({"sub": email, "role": role, "exp": datetime.utcnow() + access_token_expires},
