@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from auth.middleware import admin_only
-from .dependencies import get_db, authenticate_user, create_access_token, get_user, get_user_role
+from .dependencies import get_channel_by_name, get_db, authenticate_user, create_access_token, get_user, get_user_channel, get_user_role
 from .models import Token
 from .schemas import UserCreate, UserResponse
 from users.models import Channel, Role, User, UserAPI, UserChannel, UserRole
@@ -41,26 +41,35 @@ def signin(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     
     db_user = get_user(db, email = user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with email '{email}' not found")
     
-    db_channel =db.query(Channel).filter(Channel.name == user.channels).first()
+    db_channel = get_channel_by_name(db, channel_name = user.channels)
     if not db_channel:
-        raise HTTPException(status_code=400, detail="Channel does not exist, Please entered given Channel name.!")
+        raise HTTPException(status_code=404, detail=f"Channel with name '{user.channels}' not found")
+    
+    # Check if the user is already associated with the channel
+    if db_user:
+        user_channel = get_user_channel(db, db_user.id, db_channel.id)
+        if user_channel:
+            raise HTTPException(
+                status_code=400,
+                detail=f"User '{user.email}' is already associated with channel '{user.channels}'")
     
     db_role = db.query(Role).filter(Role.name == user.role).first()
     if not db_role:
         raise HTTPException(status_code=400, detail="Role does not exist, Please entered given Role name.!")
     
-    hashed_password = get_password_hash(user.password)
-    db_user = User(
-        email=user.email,
-        hashed_password=hashed_password,
-        status=user.status,
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    hashed_password = get_password_hash(user.password)    
+    if not db_user:
+        db_user = User(
+            email=user.email,
+            hashed_password=hashed_password,
+            status=user.status,
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
         
     user_channel_entry = UserChannel(
         user_id=db_user.id,
