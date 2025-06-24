@@ -1,6 +1,7 @@
 import os
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import httpx
 from redis import Redis
@@ -20,9 +21,8 @@ from fastapi.openapi.utils import get_openapi
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 ApiGateway_Middleware(app)
-
 templates = Jinja2Templates(directory="users/templates")
-#app.mount("/static", StaticFiles(directory="users/static"), name="static")
+app.mount("/static/logs", StaticFiles(directory="users/static"), name="logs")
 
 @app.on_event("startup")
 async def startup_event():
@@ -95,9 +95,12 @@ def login(request: Request):
 async def PerformLogin(request: Request, email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     user = authenticate_user(db, email, password)
     if not user:
-        return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})        
+        return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
     role = get_user_role(db, user.id)
+    print("generating role",role)
     access_token = UserLogged_access_token(email, role)
+    
+    print("generating token when user logged in",access_token)
     response = RedirectResponse("/APIGateway", status_code=302)
     response.set_cookie(key="access_token", value=access_token, httponly=True, max_age=SUPERLOGIN_ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     return response    
