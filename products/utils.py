@@ -1,7 +1,7 @@
 import time
 from functools import wraps
 from typing import Callable, Any
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Request
 from redis.asyncio import Redis
 
 class RateLimitConfig:
@@ -17,12 +17,13 @@ class RateLimiter:
     def rate_limit(self):
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @wraps(func)
-            async def wrapper(*args, token_data: dict = Depends(), **kwargs) -> Any:
+            async def wrapper(request: Request, *args, token_data: dict = Depends(), **kwargs) -> Any:
                 username = token_data.email
                 if not username:
                     raise HTTPException(status_code=401, detail="Unauthorized")
 
-                key = f"rate_limit:{username}"
+                url_path = request.url.path
+                key = f"rate_limit:{username}:{url_path}"
                 now = time.time()
 
                 timestamps = await self.redis_client.lrange(key, 0, -1)
@@ -34,7 +35,7 @@ class RateLimiter:
                     wait = self.config.period - (now - timestamps[0])
                     raise HTTPException(
                         status_code=429,
-                        detail=f"Rate limit exceeded. Retry after {wait:.2f} seconds"
+                        detail=f"Rate limit exceeded for {url_path}. Retry after {wait:.2f} seconds"
                     )
                 timestamps.append(now)
                 async with self.redis_client.pipeline() as pipe:
@@ -43,6 +44,6 @@ class RateLimiter:
                     await pipe.expire(key, self.config.period)
                     await pipe.execute()
 
-                return await func(*args, token_data=token_data, **kwargs)
+                return await func(request, *args, token_data=token_data, **kwargs)
             return wrapper
         return decorator

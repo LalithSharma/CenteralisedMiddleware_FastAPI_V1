@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from auth.database import engine
 from auth.static_seeder import seed_channels, seed_roles, seed_users
 from auth.utils import SUPERLOGIN_ACCESS_TOKEN_EXPIRE_MINUTES, UserLogged_access_token
+from logger import log_error, log_info
 from users.routes import router as users_router
 from products.routes import router as products_router
 from clients.routes import router as clients_router
@@ -93,14 +94,17 @@ def login(request: Request):
 
 @app.post("/login")
 async def PerformLogin(request: Request, email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    client_ip = request.client.host
+    host = request.headers.get("host", "unknown")
+    token = request.headers.get("Authorization", "none")
     user = authenticate_user(db, email, password)
     if not user:
+        log_error(client_ip, host, "/Login user validate", token, "Invalid credentials!")
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
     role = get_user_role(db, user.id)
-    print("generating role",role)
+    log_info(client_ip, host, "/Login", token, "Logged Role!")
     access_token = UserLogged_access_token(email, role)
-    
-    print("generating token when user logged in",access_token)
+    log_info(client_ip, host, "/Login", token, "Logged token validated!")
     response = RedirectResponse("/APIGateway", status_code=302)
     response.set_cookie(key="access_token", value=access_token, httponly=True, max_age=SUPERLOGIN_ACCESS_TOKEN_EXPIRE_MINUTES * 60)
     return response    
