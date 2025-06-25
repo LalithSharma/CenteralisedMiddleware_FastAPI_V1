@@ -24,6 +24,7 @@ logger.addHandler(log_handler)
 # Logging utility functions
 def log_info(client_ip="unknown", host="unknown", url="unknown", token="none", message=""):
     log_data = {
+        "log_type": "Info",
         "client_ip": client_ip,
         "host": host,
         "url": url,
@@ -35,6 +36,7 @@ def log_info(client_ip="unknown", host="unknown", url="unknown", token="none", m
 
 def log_error(client_ip="unknown", host="unknown", url="unknown", token="none", message=""):
     log_data = {
+        "log_type": "Error",
         "client_ip": client_ip,
         "host": host,
         "url": url,

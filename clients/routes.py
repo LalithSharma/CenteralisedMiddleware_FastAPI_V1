@@ -29,7 +29,7 @@ async def get_clients(request: Request, channel: str = Path(..., description="Se
     host = request.headers.get("host", "unknown")
     token = request.headers.get("Authorization", "none")
             
-    if "error" in channel_data:
+    if not channel_data:
         log_error(client_ip, host, "/clients - user channel", token, f"Channel '{channel}' not found in the database")
         raise HTTPException(
         status_code=404, detail=f"Channel '{channel}' not found in the database"
@@ -66,11 +66,11 @@ async def get_clients(request: Request, channel: str = Path(..., description="Se
     try:
         cached_data = await redis_client.get(cache_key)
         if cached_data:
-            log_info(client_ip, host, "/clients - user channel", token, "Client Data retrieved from Redis cache.")
+            log_info(client_ip, host, "/clients", token, "Client Data retrieved from Redis cache.")
             logger.info("Client Data retrieved from Redis cache.")
             return json.loads(cached_data)
 
-        log_info(client_ip, host, "/clients - user channel", token, "Fetching Client data from the core API.")
+        log_info(client_ip, host, "/clients", token, "Fetching Client data from the core API.")
         logger.info("Fetching Client data from the core API.")
         async with httpx.AsyncClient() as client:
              headers = {"Authorization": api_key}
@@ -80,14 +80,14 @@ async def get_clients(request: Request, channel: str = Path(..., description="Se
 
         await redis_client.set(cache_key, json.dumps(Client_data), ex=300)  # Cache for 5 minutes
         logger.info("Client Data fetched from core API and cached in Redis.")
-        log_info(client_ip, host, "/clients - user channel", token, "Client Data fetched from core API and cached in Redis.")
+        log_info(client_ip, host, "/clients", token, "Client Data fetched from core API and cached in Redis.")
         return Client_data
 
     except httpx.RequestError as e:
-        log_error(client_ip, host, "/clients - user channel", token, f"Error fetching Client data: {e}")
+        log_error(client_ip, host, "/clients", token, f"Error fetching Client data: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching Client data: {e}")
     except httpx.HTTPStatusError as e:
-        log_error(client_ip, host, "/clients - user channel", token, f"Error fetching Client data: {e.response.text}")
+        log_error(client_ip, host, "/clients", token, f"Error fetching Client data: {e.response.text}")
         raise HTTPException(status_code=e.response.status_code,
                             detail=f"Error fetching Client data: {e.response.text}")
 
