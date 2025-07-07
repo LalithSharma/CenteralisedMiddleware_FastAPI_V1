@@ -22,7 +22,7 @@ def ApiGateway_Middleware(app:FastAPI):
     Middlelog_file_name = os.path.join(Middle_logs_dir, f"{current_time}.log")
     
     log_formatter = logging.Formatter(
-        "%(asctime)s - IP: %(client_ip)s - Domain: %(host)s - URL: %(url)s - Token: %(token)s - Method: %(method)s - LogMessage: %(log_message)s"
+        "%(log_type)s: %(asctime)s - IP: %(client_ip)s - Domain: %(host)s - URL: %(url)s - Token: %(token)s - Method: %(method)s - LogMessage: %(log_message)s"
     )
     log_handler = RotatingFileHandler(
         Middlelog_file_name, maxBytes=10 * 1024 * 1024, backupCount=5

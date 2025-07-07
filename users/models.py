@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum, func
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Enum, Text, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -99,3 +99,20 @@ class UserRole(Base):
     
     # Relationship to Role
     role = relationship("Role", back_populates="user_roles")
+    
+class APIRoute(Base):
+    __tablename__ = "api_route_path"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    method = Column(String(10), nullable=False)  # GET, POST, etc.
+    path = Column(String(255), nullable=False)  # e.g., /clients/{client_id}/products
+    cache_key_prefix = Column(String(50), nullable=False)  # e.g., Client_products_cache
+    maxcache = Column(Integer, nullable=False)
+    description = Column(Text, nullable=True)  # Optional field
+    status = Column(Enum(StatusEnum), default=StatusEnum.active, nullable=False)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, onupdate=func.now())
+
+    def __repr__(self):
+        return f"<APIRoute(id={self.id}, method={self.method}, path={self.path})>"
+    

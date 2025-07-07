@@ -10,7 +10,7 @@ current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 log_file_name = os.path.join(logs_dir, f"{current_time}.log")
 
 log_formatter = logging.Formatter(
-    "%(asctime)s - IP: %(client_ip)s - Domain: %(host)s - URL: %(url)s - Token: %(token)s - LogMessage: %(log_message)s"
+    "%(log_type)s: %(asctime)s - IP: %(client_ip)s - Domain: %(host)s - URL: %(url)s - Token: %(token)s - LogMessage: %(log_message)s"
 )
 
 log_handler = RotatingFileHandler(

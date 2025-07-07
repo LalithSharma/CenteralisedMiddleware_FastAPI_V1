@@ -10,15 +10,16 @@ from auth.middleware import ApiGateway_Middleware
 from auth.routes import router as auth_router
 from sqlalchemy.orm import Session
 from auth.database import engine
-from auth.static_seeder import seed_channels, seed_roles, seed_users
+from auth.static_seeder import seed_api_routes, seed_channels, seed_roles, seed_users
 from auth.utils import SUPERLOGIN_ACCESS_TOKEN_EXPIRE_MINUTES, UserLogged_access_token
 from logger import log_error, log_info
 from users.routes import router as users_router
-from products.routes import router as products_router
-from clients.routes import router as clients_router
-from bookings.routes import router as bookings_router
+# from products.routes import router as products_router
+# from clients.routes import router as clients_router
+# from bookings.routes import router as bookings_router
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
+from DLL.API_routes import router as api_router
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 ApiGateway_Middleware(app)
@@ -31,6 +32,7 @@ async def startup_event():
         seed_roles(session)
         seed_channels(session)
         seed_users(session)
+        seed_api_routes(session)
 
 @app.on_event("startup")
 async def startup_event():
@@ -45,15 +47,16 @@ async def shutdown_event():
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/user", tags=["user"])
-app.include_router(clients_router, prefix="/{channel}", tags=["clients"])
-app.include_router(clients_router, prefix="/{channel}", tags=["clients"])
-app.include_router(products_router, prefix="/{channel}", tags=["products"])
-app.include_router(products_router, prefix="/{channel}", tags=["products"])
-app.include_router(products_router, prefix="/{channel}", tags=["products"])
+app.include_router(api_router, prefix="/{channel}", tags=["api_urls"])
+# app.include_router(clients_router, prefix="/{channel}", tags=["clients"])
+# app.include_router(clients_router, prefix="/{channel}", tags=["clients"])
+# app.include_router(products_router, prefix="/{channel}", tags=["products"])
+# app.include_router(products_router, prefix="/{channel}", tags=["products"])
+# app.include_router(products_router, prefix="/{channel}", tags=["products"])
 
-app.include_router(bookings_router, prefix="/{channel}", tags=["Bookings"])
-app.include_router(bookings_router, prefix="/{channel}", tags=["bookings"])
-app.include_router(bookings_router, prefix="/{channel}", tags=["bookings"])
+# app.include_router(bookings_router, prefix="/{channel}", tags=["Bookings"])
+# app.include_router(bookings_router, prefix="/{channel}", tags=["bookings"])
+# app.include_router(bookings_router, prefix="/{channel}", tags=["bookings"])
 
 
 @app.get("/")
