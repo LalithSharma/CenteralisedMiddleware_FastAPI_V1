@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from auth.utils import get_password_hash
-from users.models import Role, Channel,User, UserChannel, UserRole, Channel, Role, StatusEnum
+from users.models import APIRoute, Role, Channel,User, UserChannel, UserRole, Channel, Role, StatusEnum
 from .database import engine
 
 def seed_roles(session: Session):
@@ -97,3 +97,52 @@ def seed_users(session: Session):
 
     session.commit()
     print("Users seeded successfully.")
+
+
+def seed_api_routes(session: Session):
+        
+    routes = [
+            {"method": "GET", "path": "/clients", "status": StatusEnum.active, "cache_key_prefix": "Client_list_cache", "maxcache":3600, "description": "Fetch all clients"},
+            {"method": "GET", "path": "/clients/{client_id}", "status": StatusEnum.active, "cache_key_prefix": "Client_data_cache", "maxcache":3600, "description": "Fetch client details"},
+            {"method": "GET", "path": "/clients/{client_id}/products", "status": StatusEnum.active, "cache_key_prefix": "Client_products_cache", "maxcache":3600, "description": "Fetch all products for a client"},
+            {"method": "GET", "path": "/clients/{client_id}/products/{product_id}", "status": StatusEnum.active, "cache_key_prefix": "Product_data_cache", "maxcache":3600, "description": "Fetch specific product details"},
+            {"method": "GET", "path": "/clients/{client_id}/products/{product_id}/calendar", "status": StatusEnum.active, "cache_key_prefix": "Product_calendar_cache", "maxcache":3600, "description": "Fetch product calendar"},
+            {"method": "GET", "path": "/clients/{client_id}/receptionists", "status": StatusEnum.active, "cache_key_prefix": "Receptionists_cache", "maxcache":3600, "description": "Fetch all receptionists for a client"},
+            {"method": "GET", "path": "/clients/{client_id}/receptionists/{receptionist_id}", "status": StatusEnum.active, "cache_key_prefix": "Receptionist_data_cache", "maxcache":3600, "description": "Fetch specific receptionist details"},
+            {"method": "GET", "path": "/clients/{client_id}/commissions", "status": StatusEnum.active, "cache_key_prefix": "Commissions_cache", "maxcache":3600, "description": "Fetch all commissions for a client"},
+            {"method": "GET", "path": "/clients/{client_id}/commissions/{commission_id}", "status": StatusEnum.active, "cache_key_prefix": "Commission_data_cache", "maxcache":3600, "description": "Fetch specific commission details"},
+            {"method": "GET", "path": "/clients/{client_id}/orders", "status": StatusEnum.active, "cache_key_prefix": "Orders_cache", "maxcache":3600, "description": "Fetch all orders for a client"},
+            {"method": "GET", "path": "/clients/{client_id}/orders/{order_id}", "status": StatusEnum.active, "cache_key_prefix": "Order_data_cache", "maxcache":3600, "description": "Fetch specific order details"},
+            {"method": "GET", "path": "/clients/{client_id}/orders/invoice/{invoice_id}", "status": StatusEnum.active, "cache_key_prefix": "Invoice_data_cache", "maxcache":3600, "description": "Fetch invoice details for an order"},
+            {"method": "GET", "path": "/clients/{client_id}/orders/attachment/{attachment_id}", "status": StatusEnum.active, "cache_key_prefix": "Attachment_data_cache", "maxcache":3600, "description": "Fetch attachment details for an order"},
+            {"method": "GET", "path": "/clients/{client_id}/orders/voucher/{voucher_id}", "status": StatusEnum.active, "cache_key_prefix": "Voucher_data_cache", "maxcache":3600, "description": "Fetch voucher details for an order"},
+            {"method": "GET", "path": "/clients/{client_id}/orders/prepaidvoucher/{prepaidvoucher_id}", "status": StatusEnum.active, "cache_key_prefix": "PrepaidVoucher_data_cache", "maxcache":3600, "description": "Fetch prepaid voucher details for an order"},
+        ]    
+    try:
+        for route in routes:
+            # Check if this route already exists
+            exists = session.query(APIRoute).filter_by(
+                method=route["method"],
+                path=route["path"]
+            ).first()
+
+            if not exists:
+                new_route = APIRoute(
+                    method=route["method"],
+                    path=route["path"],
+                    status=route["status"],
+                    cache_key_prefix=route["cache_key_prefix"],
+                    maxcache=route["maxcache"],
+                    description=route["description"]
+                )
+                session.add(new_route)
+
+        session.commit()
+        print("API Routes seeded successfully (skipped duplicates).")
+
+    except Exception as e:
+        session.rollback()
+        print(f"Error seeding API Routes: {e}")
+
+    finally:
+        session.close()

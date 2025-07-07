@@ -1,12 +1,12 @@
 from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import httpx
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from .utils import ALGORITHM, SECRET_KEY, SUPERLOGIN_ALGORITHM, SUPERLOGIN_API_KEY, SUPERLOGIN_SECRET_KEY, verify_password, get_password_hash, create_access_token
 from .models import TokenData
-from users.models import Channel, Role, User, UserChannel, UserRole
-from .database import SessionLocal, engine, Base
+from users.models import APIRoute, Channel, Role, User, UserChannel, UserRole
+from .database import SessionLocal, engine
 from users import models
 from sqlalchemy import select
 from logger import log_info, log_error
@@ -131,6 +131,24 @@ def fetch_channel_data(channel_name: str, db: Session = Depends(get_db)):
         }
     return {"error": "Channel not found"}
 
+def fetch_urls(db: Session = Depends(get_db)):
+    try:
+        query_urlsPath = select(
+            APIRoute.path, 
+            APIRoute.maxcache,
+            APIRoute.status
+        ).where(APIRoute.status == "active")
+        result = db.execute(query_urlsPath)
+        patterns = [
+            {"path": row[0], "maxcache": row[1]}
+            for row in result.fetchall()
+        ]
+        return patterns
+
+    except Exception as e:
+        print("Error fetching urls from API routes table:", str(e))
+        return []
+    
 def validate_token(token: str):
     try:
         payload = jwt.decode(token, SUPERLOGIN_SECRET_KEY, algorithms=[SUPERLOGIN_ALGORITHM])
