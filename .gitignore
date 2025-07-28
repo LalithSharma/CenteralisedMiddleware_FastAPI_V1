@@ -15,7 +15,7 @@ env/
 .idea/
 
 # Logs
-*.log
+#*.log
 
 # Byte-compiled files
 *.pyc
